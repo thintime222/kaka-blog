@@ -1,0 +1,81 @@
+## 日志更新
+
+### 2022-09-27
+
+1. 结合 vm+rem，输出自适应方案
+2. 增加 calculating 单位换算器
+3. 优化部分组件，以自适应各个端
+
+### 2022-09-25
+
+1. 使用 Suspense 和 lazy 做路由懒加载，分割代码
+2. 移动端增加 vconsole 线上调试
+3. 通过`vite-plugin-chunk-split`自定义 vite 拆包策略，优化性能
+
+### 2022-07-29
+
+1. 增加 前端常用网站
+
+### 2022-05-30
+
+2. 引入 `markmap-lib`，`markmap-view`，增加 markMap 组件，markdown 转思维导图
+
+### 2022-05-25
+
+1. 增加 MdCard,MdTitle 组件
+2. 根据 mdx，定制一份属于自己的简历
+
+### 2022-05-24
+
+1. 增加 vite-mdx-cli 能力，可以通过 npm 命令，拉取项目模板
+2. 作者从 package.json 中获取，可以用过 vite-mdx 初始化项目的时候，写入 author 数据
+
+### 2022-05-18
+
+1. v1.0.0 分支
+2. 加入 github 用户授权登录能力
+3. 利用 github issues 的能力，加入点赞功能，首页显示点赞数、评论数
+4. 只是对 github issues 和 github 授权登录的一个探索、学习，只是需要服务端配合，目前没有买服务器，就暂时做到这一步
+
+### 2022-05-15
+
+1. 增加代码预览组件, 支持复制，显示/关闭功能
+2. 引入`prism-react-renderer`,增加代码高亮显示
+
+### 2022-05-09
+
+1. 组件库功能完善，输出 demo
+
+### 2022-05-06
+
+1. mdx 生成逻辑优化
+2. 增加 search 组件，用于全局搜索文章
+3. 首页功能完善
+
+### 2022-05-05
+
+1. 菜单动态生成,mdx 数据增加 title
+
+### 2022-05-04
+
+1. 路由动态生成
+
+### 2022-04-24
+
+1. 首页布局优化，完成 pc 端和移动端的适配
+2. md 路由调整，默认选中第一个
+
+### 2022-04-23
+
+1. 增加菜单组件，一份 div，通过 2 种样式维护，在 root 全局节点中，增加移动设备类型（h5,pc），用于全局样式控制
+2. 增加 pop 组件，主要使用`forwardRef`、`createPortal`特性
+3. 在`md`中增加`front`和`end`，调整正则表达式规则，多增加一层级的 mdx 生成规则，同时调整路由`path`的生成策略
+4. 增加`constant/global`，全局常量配置
+
+### 2022-04-22
+
+1. vite 中引入`vite-plugin-mdx`，用于支持 markdown 文件自动生成页面，引入 github-markdown.css
+2. 在`vite.config.js`中去掉`base`的配置，打包后，就去掉了`react-boat`路径。
+   同时在 github 中将工程名`react-boat`调整为`yaolx.github.io`，则后续只要用`https://yaolx.github.io/`访问即可。
+3. `react-router`升级到 v6，重写`routes`配置，正好学习了`useRoutes`、`useNavigate`、`Outlet`等特性
+4. mdx 生成规则

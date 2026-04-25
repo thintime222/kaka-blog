@@ -1,0 +1,69 @@
+# <center>iconfont：使用 symbol 做 Icon 组件</center>
+
+## 背景
+
+使用 symbol 来做 iconfont 图标，相比传统用 png，性能更优、也更方便，易于管理，也减少了请求数，有效减少请求体积。
+可以复用在很多地方，减少二次开发陈本。
+
+## 使用`Symbol`做组件化 Icon
+
+1. 动态加载 iconfont.js
+
+   ```js
+   const fetchScript = new FetchScript({
+     v: config.fontsVersion,
+     urls: [`${CDN_HOST}/iconfont/iconfont.js`]
+   })
+   ```
+
+   根据配置，动态异步加载 iconfont，并设置版本号，放到 cdn 上
+
+2. 设置通用 css
+
+   ```css
+   .icon {
+     width: 1em;
+     height: 1em;
+     vertical-align: -0.15em;
+     fill: currentColor;
+     overflow: hidden;
+   }
+   ```
+
+3. 自定义 react Icon 组件
+
+   ```js
+   import React from 'react'
+   import classNames from 'classnames'
+   import styles from './styles.css'
+   export default (props) => {
+     let { type, className, ...other } = props
+     return (
+       <svg className={classNames(styles.icon, className)} {...other} aria-hidden="true">
+         <use xlinkHref={`#icon${type}`}></use>
+       </svg>
+     )
+   }
+   ```
+
+4. 调用
+
+   ```js
+   <Icon type="filter-line" className={styles['filter-line']} />
+   ```
+
+5. 新增字体图标
+
+   只需在[iconfont](https://www.iconfont.cn/)上，上传相应的图标，然后下载`Symbol`代码，放到 cdn 上
+
+6. 对比 `WebFont`
+
+- `WebFont` 如果把 woff 格式的文件放到 cdn 上，不好控制缓存的更新，不仅要上传 fonts 字体文件，还得修改引入 font-face 中 url 的版本号，才会更新，比较麻烦
+
+- Symbol 支持多色图标
+
+- 完全离线化使用，不需要从 CDN 下载字体文件，图标不会因为网络问题呈现方块，也无需字体文件本地部署
+
+- 在低端设备上 SVG 有更好的清晰度
+
+- 支持动画
