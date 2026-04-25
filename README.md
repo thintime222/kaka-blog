@@ -22,3 +22,5 @@ npm run dev
 - **Output 目录**：`dist`
 
 把项目导入 Vercel 后即可自动部署。
+
+Trigger deploy: 2026-04-25
