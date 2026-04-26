@@ -1,6 +1,6 @@
 import { Suspense, useEffect, useMemo, useRef, useState } from 'react'
 import { Outlet, useLocation, useNavigate } from 'react-router-dom'
-import { DEFAULT_ENTRY_SLUG, LOG_NAV_SLUG } from '@/constants/page-convention'
+import { LOG_NAV_SLUG } from '@/constants/page-convention'
 import {
   compareArticleDateDesc,
   genMdxMenus,
@@ -82,13 +82,9 @@ export default function Layout(props: { type?: string }) {
             <div className={styles.avatarBlock}>
               <img className={styles.avatar} src={avatarSvg} alt="" width={30} height={30} />
             </div>
-            <button
-              type="button"
-              className={`${styles.brandTitle} ${topNavSlug === DEFAULT_ENTRY_SLUG ? styles.brandAtHome : ''}`}
-              onClick={() => navigate(`/${DEFAULT_ENTRY_SLUG}`)}
-            >
+            <div>
               个人技术博客
-            </button>
+            </div>
           </div>
 
           <div className={styles.searchWrap} ref={searchWrapRef}>
