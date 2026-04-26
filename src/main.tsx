@@ -1,21 +1,30 @@
-import { StrictMode } from 'react'
-import { createRoot } from 'react-dom/client'
+import React from 'react'
+import ReactDOM from 'react-dom/client'
 import { BrowserRouter } from 'react-router-dom'
 import { Analytics } from '@vercel/analytics/react'
 import { SpeedInsights } from '@vercel/speed-insights/react'
-import 'github-markdown-css/github-markdown.css'
-import './index.css'
+import { BLOG_ACCENT_STORAGE_KEY } from '@/constants/page-convention'
+import { blogAccentDefault } from '@/content/blog-theme.mdx'
 import Router from '@/routes'
-import { genMdxRouters } from '@/service/mdx-service'
+import './styles/global.scss' // 引入全局样式
 
-genMdxRouters()
+try {
+  const raw = localStorage.getItem(BLOG_ACCENT_STORAGE_KEY)
+  if (raw && /^#[0-9A-Fa-f]{6}$/.test(raw)) {
+    document.documentElement.style.setProperty('--blog-accent', raw)
+  } else {
+    document.documentElement.style.setProperty('--blog-accent', blogAccentDefault)
+  }
+} catch {
+  document.documentElement.style.setProperty('--blog-accent', blogAccentDefault)
+}
 
-createRoot(document.getElementById('root')!).render(
-  <StrictMode>
+ReactDOM.createRoot(document.getElementById('root')!).render(
+  <React.StrictMode>
     <BrowserRouter>
       <Router />
+      </BrowserRouter>
       <Analytics />
-      <SpeedInsights />
-    </BrowserRouter>
-  </StrictMode>,
+    <SpeedInsights />
+  </React.StrictMode>,
 )

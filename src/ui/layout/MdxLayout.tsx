@@ -14,7 +14,7 @@ const components = {
 export default function MdxLayout(props: PropsWithChildren) {
   return (
     <MDXProvider components={components}>
-      <article className={`${styles.mdx} markdown-body`}>{props.children}</article>
+      <article className={styles.mdx}>{props.children}</article>
     </MDXProvider>
   )
 }

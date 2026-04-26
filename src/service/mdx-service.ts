@@ -1,3 +1,12 @@
+import {
+  ARTICLE_DATE_LEN,
+  PAGE_ARTICLE_IMPORT_GLOB,
+  PAGE_DIR_REL_TO_SERVICE,
+  PARENT_TITLE_BY_SLUG,
+  TOP_NAV_SLUG_ORDER,
+  isStandalonePageDir,
+} from '@/constants/page-convention'
+
 export type MdxRoute = {
   parentPath: string
   parentTitle: string
@@ -6,47 +15,71 @@ export type MdxRoute = {
   name: string
   date: string
   element: () => Promise<unknown>
-  index?: boolean
+  /** 该分类按日期降序后的首篇，对应路由 `/slug`（index） */
+  isCategoryIndex?: boolean
 }
 
-const mdxs = import.meta.glob('../page/md/**/*.mdx')
-const safeMdxs = Object.fromEntries(
-  Object.entries(mdxs).filter(([k]) => {
-    // 这些文章里存在“可执行的 demo 代码/require/import 非本项目依赖”，会导致白屏；先跳过
-    // 后续可以按需把文章改成纯展示代码再放开
-    return (
-      !k.includes('20220801@echarts绘制geo地图.mdx') &&
-      !k.includes('20220925@vite 打包优化之：懒加载和分包.mdx') &&
-      !k.includes('20221117@iconfont：使用symbol做Icon组件.mdx')
-    )
-  })
+if (import.meta.env.DEV && '../page/*/*.mdx' !== PAGE_ARTICLE_IMPORT_GLOB) {
+  throw new Error('[mdx-service] glob 字面量与 page-convention.PAGE_ARTICLE_IMPORT_GLOB 不一致')
+}
+const mdxs = import.meta.glob('../page/*/*.mdx')
+
+const entryKeyRe = new RegExp(
+  `^${PAGE_DIR_REL_TO_SERVICE.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}/([^/]+)/([^/]+)\\.mdx$`,
 )
 
 export let mdxFiles: MdxRoute[] = []
 export let mdxInitError: string | null = null
 
-// 解析 md 文件夹下的 markdown 文件，生成路由（约定式命名）
-// 约定：
-// - 目录：src/page/md/<parentPath>_<parentTitle>/
-// - 文件：<date>@<name>.mdx 例如 20220507@xxx.mdx
+/** 与侧栏、路由 index 子项一致：日期字符串 YYYYMMDD 降序；同日按 key 稳定排序 */
+export function compareArticleDateDesc(a: MdxRoute, b: MdxRoute) {
+  if (a.date < b.date) return 1
+  if (a.date > b.date) return -1
+  return a.key.localeCompare(b.key)
+}
+
+function applyCategoryIndexPaths(routes: MdxRoute[]) {
+  const byParent = new Map<string, MdxRoute[]>()
+  for (const r of routes) {
+    const list = byParent.get(r.parentPath) ?? []
+    list.push(r)
+    byParent.set(r.parentPath, list)
+  }
+  for (const list of byParent.values()) {
+    list.sort(compareArticleDateDesc)
+    list.forEach((r, i) => {
+      const isFirst = i === 0
+      r.isCategoryIndex = isFirst
+      r.path = isFirst ? `/${r.parentPath}` : `/${r.parentPath}/${r.date}`
+    })
+  }
+  return Array.from(byParent.keys())
+    .sort()
+    .flatMap((k) => byParent.get(k)!)
+}
+
 export const genMdxRouters = (): MdxRoute[] => {
   try {
-    let cacheParentPath = ''
     if (mdxFiles.length === 0) {
       mdxInitError = null
-      mdxFiles = Object.keys(safeMdxs)
+      const keys = Object.keys(mdxs).sort()
+      const raw = keys
         .map((key) => {
-          const reg = new RegExp('../page/md/(.*)/(.*).mdx')
-          const pattern = key.replace(reg, (_regexp, r1, r2) => `${r1}@${r2}`)
-          const arr = pattern.split('@')
-          const group = arr[0] || ''
-          const date = arr[1] || ''
-          const name = arr[2] || ''
+          const m = key.match(entryKeyRe)
+          if (!m) return null
+          const [, group, base] = m
+          if (isStandalonePageDir(group)) return null
 
-          const parentPath = group.split('_')[0] || ''
-          const parentTitle = group.split('_')[1] || parentPath
+          const at = base.indexOf('@')
+          if (at !== ARTICLE_DATE_LEN) return null
+          const date = base.slice(0, ARTICLE_DATE_LEN)
+          const name = base.slice(ARTICLE_DATE_LEN + 1)
+          if (!/^\d{8}$/.test(date) || !name) return null
 
-          const loader = safeMdxs[key]
+          const parentPath = group
+          const parentTitle = PARENT_TITLE_BY_SLUG[group] ?? group
+
+          const loader = mdxs[key]
           if (!loader) return null
 
           const params: MdxRoute = {
@@ -59,15 +92,11 @@ export const genMdxRouters = (): MdxRoute[] => {
             element: loader,
           }
 
-          // 每个分类的第一篇文章会在路由层做 index 处理，这里仅保持与原逻辑一致
-          if (parentPath !== cacheParentPath) {
-            cacheParentPath = parentPath
-            params.path = `/${parentPath}`
-          }
-
           return params
         })
         .filter((x): x is MdxRoute => Boolean(x))
+
+      mdxFiles = applyCategoryIndexPaths(raw)
     }
     return mdxFiles
   } catch (e) {
@@ -81,6 +110,22 @@ export const genSubMdxRouters = (type: string) => {
   return mdxFiles.filter((mdx) => mdx.parentPath === type)
 }
 
+/** 按标题、分类名、slug、日期模糊搜索（不区分大小写） */
+export function searchArticles(raw: string, limit = 20): MdxRoute[] {
+  const q = raw.trim().toLowerCase()
+  if (!q) return []
+  if (mdxFiles.length === 0) genMdxRouters()
+  const hits = mdxFiles.filter(
+    (r) =>
+      r.name.toLowerCase().includes(q) ||
+      r.parentTitle.toLowerCase().includes(q) ||
+      r.parentPath.toLowerCase().includes(q) ||
+      r.date.includes(q),
+  )
+  hits.sort(compareArticleDateDesc)
+  return hits.slice(0, limit)
+}
+
 export const genMdxMenus = () => {
   if (mdxFiles.length === 0) genMdxRouters()
   const seen = new Map<string, { key: string; title: string }>()
@@ -89,6 +134,12 @@ export const genMdxMenus = () => {
       seen.set(item.parentPath, { key: item.parentPath, title: item.parentTitle })
     }
   }
-  return Array.from(seen.values())
+  const order = new Map<string, number>(TOP_NAV_SLUG_ORDER.map((k, i) => [k, i]))
+  const tail = TOP_NAV_SLUG_ORDER.length
+  return Array.from(seen.values()).sort((a, b) => {
+    const ia = order.get(a.key) ?? tail
+    const ib = order.get(b.key) ?? tail
+    if (ia !== ib) return ia - ib
+    return a.key.localeCompare(b.key)
+  })
 }
-

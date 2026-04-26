@@ -1,63 +1,168 @@
-import { Suspense } from 'react'
+import { Suspense, useEffect, useMemo, useRef, useState } from 'react'
 import { Outlet, useLocation, useNavigate } from 'react-router-dom'
-
-import { genMdxMenus, genSubMdxRouters } from '@/service/mdx-service'
+import { DEFAULT_ENTRY_SLUG, LOG_NAV_SLUG } from '@/constants/page-convention'
+import {
+  compareArticleDateDesc,
+  genMdxMenus,
+  genSubMdxRouters,
+  searchArticles,
+} from '@/service/mdx-service'
+import type { MdxRoute } from '@/service/mdx-service'
+import avatarSvg from './avator.svg'
 import styles from './layout.module.scss'
 
 export default function Layout(props: { type?: string }) {
   const navigate = useNavigate()
   const location = useLocation()
-  const menus = genMdxMenus()
+  const menus = genMdxMenus().filter((m) => m.key !== LOG_NAV_SLUG)
   const currentType = props.type
 
   const sideItems = currentType
-    ? genSubMdxRouters(currentType)
-        .slice()
-        .sort((a, b) => (a.date < b.date ? 1 : a.date > b.date ? -1 : 0))
+    ? genSubMdxRouters(currentType).slice().sort(compareArticleDateDesc)
     : []
 
+  const categoryNewest = sideItems[0]
+  const categoryNewestDate = categoryNewest?.date
   const pathname = location.pathname
-  const isActiveTop = (key: string) => pathname === `/${key}` || pathname.startsWith(`/${key}/`)
+  /** 只用首段路径匹配 slug，避免 `startsWith` 边界问题，且与各分类 `/slug`、`/slug/日期` 一致 */
+  const topNavSlug = useMemo(() => pathname.replace(/^\/+/, '').split('/')[0] ?? '', [pathname])
+  const isActiveTop = (key: string) => topNavSlug === key
+
+  const [searchQ, setSearchQ] = useState('')
+  const [searchOpen, setSearchOpen] = useState(false)
+  const searchWrapRef = useRef<HTMLDivElement>(null)
+
+  const searchHits = useMemo(() => searchArticles(searchQ), [searchQ])
+
+  useEffect(() => {
+    const onPointerDown = (e: PointerEvent) => {
+      const el = searchWrapRef.current
+      if (el && !el.contains(e.target as Node)) setSearchOpen(false)
+    }
+    document.addEventListener('pointerdown', onPointerDown)
+    return () => document.removeEventListener('pointerdown', onPointerDown)
+  }, [])
+
+  useEffect(() => {
+    setSearchOpen(false)
+    setSearchQ('')
+  }, [pathname])
+
+  /** 首篇规范 URL 为 `/分类`：若直接打开 `/分类/首篇日期`，与 index 对齐并 replace */
+  useEffect(() => {
+    if (!currentType || !categoryNewest?.isCategoryIndex || !categoryNewestDate) return
+    const dated = `/${currentType}/${categoryNewestDate}`
+    if (pathname === dated) {
+      navigate(`/${currentType}`, { replace: true })
+    }
+  }, [categoryNewest?.isCategoryIndex, categoryNewestDate, currentType, navigate, pathname])
+
+  const goArticle = (r: MdxRoute) => {
+    navigate(r.path)
+    setSearchOpen(false)
+    setSearchQ('')
+  }
+
+  const onSearchKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Escape') {
+      setSearchOpen(false)
+      ;(e.target as HTMLInputElement).blur()
+    }
+    if (e.key === 'Enter' && searchHits[0]) {
+      e.preventDefault()
+      goArticle(searchHits[0])
+    }
+  }
 
   return (
     <div className={styles.shell}>
       <header className={styles.topbar}>
         <div className={styles.topbarInner}>
-          <div className={styles.brand} onClick={() => navigate('/')}>
-            <div className={styles.avatar} />
-            千禮之行
+          <div className={styles.brand}>
+            <div className={styles.avatarBlock}>
+              <img className={styles.avatar} src={avatarSvg} alt="" width={30} height={30} />
+            </div>
+            <button
+              type="button"
+              className={`${styles.brandTitle} ${topNavSlug === DEFAULT_ENTRY_SLUG ? styles.brandAtHome : ''}`}
+              onClick={() => navigate(`/${DEFAULT_ENTRY_SLUG}`)}
+            >
+              个人技术博客
+            </button>
           </div>
 
-          <input className={styles.search} placeholder="搜索文章（后续接入）" />
+          <div className={styles.searchWrap} ref={searchWrapRef}>
+            <input
+              className={styles.search}
+              type="search"
+              placeholder="搜索文章标题、分类、日期…"
+              value={searchQ}
+              autoComplete="off"
+              aria-expanded={searchOpen && Boolean(searchQ.trim())}
+              aria-controls="layout-search-results"
+              onChange={(e) => {
+                setSearchQ(e.target.value)
+                setSearchOpen(true)
+              }}
+              onFocus={() => {
+                if (searchQ.trim()) setSearchOpen(true)
+              }}
+              onKeyDown={onSearchKeyDown}
+            />
+            {searchOpen && searchQ.trim() ? (
+              <ul id="layout-search-results" className={styles.searchDropdown} role="listbox">
+                {searchHits.length === 0 ? (
+                  <li className={styles.searchEmpty}>未找到匹配文章</li>
+                ) : (
+                  searchHits.map((r) => (
+                    <li key={r.key} role="presentation">
+                      <button
+                        type="button"
+                        role="option"
+                        className={styles.searchHit}
+                        onClick={() => goArticle(r)}
+                      >
+                        <span className={styles.searchHitTitle}>{r.name}</span>
+                        <span className={styles.searchHitMeta}>
+                          {r.parentTitle} · {r.date}
+                        </span>
+                      </button>
+                    </li>
+                  ))
+                )}
+              </ul>
+            ) : null}
+          </div>
 
           <nav className={styles.nav}>
-            <button className={styles.navLink} onClick={() => navigate('/')}>
-              首页
-            </button>
-            {menus.map((m) => (
+            <div className={styles.navPrimary}>
+              {menus.map((m) => (
+                <button
+                  key={m.key}
+                  type="button"
+                  className={`${styles.navLink} ${isActiveTop(m.key) ? styles.navLinkActive : ''}`}
+                  onClick={() => navigate(`/${m.key}`)}
+                >
+                  {m.title}
+                </button>
+              ))}
+            </div>
+            <div className={styles.navUtil}>
               <button
-                key={m.key}
-                className={`${styles.navLink} ${isActiveTop(m.key) ? styles.navLinkActive : ''}`}
-                onClick={() => navigate(`/${m.key}`)}
+                type="button"
+                className={styles.navLink}
+                onClick={() => window.open('https://github.com/', '_blank')}
               >
-                {m.title}
+                GitHub
               </button>
-            ))}
-            <button className={styles.navLink} onClick={() => window.open('https://github.com/', '_blank')}>
-              github
-            </button>
-            <button
-              className={`${styles.navLink} ${pathname.startsWith('/md/about') ? styles.navLinkActive : ''}`}
-              onClick={() => navigate('/md/about')}
-            >
-              关于
-            </button>
-            <button
-              className={`${styles.navLink} ${pathname.startsWith('/md/log') ? styles.navLinkActive : ''}`}
-              onClick={() => navigate('/md/log')}
-            >
-              更新日志
-            </button>
+              <button
+                type="button"
+                className={`${styles.navLink} ${isActiveTop(LOG_NAV_SLUG) ? styles.navLinkActive : ''}`}
+                onClick={() => navigate(`/${LOG_NAV_SLUG}`)}
+              >
+                更新日志
+              </button>
+            </div>
           </nav>
         </div>
       </header>
@@ -71,9 +176,10 @@ export default function Layout(props: { type?: string }) {
                 {sideItems.map((item) => {
                   const target = item.date ? `/${currentType}/${item.date}` : `/${currentType}`
 
-                  // 只有第一篇文章对应 index(/type) 需要特殊高亮
-                  const isIndex = item.path === `/${currentType}`
-                  const isActive = isIndex ? pathname === `/${currentType}` : pathname === target
+                  const isIndex = Boolean(item.isCategoryIndex)
+                  const isActive = isIndex
+                    ? pathname === `/${currentType}` || pathname === `/${currentType}/${item.date}`
+                    : pathname === target
 
                   return (
                     <button
@@ -91,7 +197,10 @@ export default function Layout(props: { type?: string }) {
           ) : null}
         </aside>
         <main className={styles.main}>
-          <Suspense fallback={<div style={{ padding: 24 }}>Loading…</div>}>
+          <Suspense
+            key={pathname}
+            fallback={<div className={styles.mainOutletFallback}>Loading…</div>}
+          >
             <Outlet />
           </Suspense>
         </main>
@@ -99,4 +208,3 @@ export default function Layout(props: { type?: string }) {
     </div>
   )
 }
-

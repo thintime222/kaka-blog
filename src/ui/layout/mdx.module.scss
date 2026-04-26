@@ -1,6 +1,309 @@
+/* 正文区排版：对齐 github-markdown-css light 观感，不依赖该包 */
+
+$md-text: #1f2328;
+$md-muted: #59636e;
+$md-border: #d1d9e0;
+$md-border-soft: rgba(209, 217, 224, 0.7);
+$md-link: #0969da;
+$md-inline-code-bg: rgba(129, 139, 152, 0.12);
+$md-pre-bg: #f6f8fa;
+$md-table-stripe: #f6f8fa;
+$md-mono: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace;
+
 .mdx {
   max-width: 980px;
   margin: 0 auto;
-  padding: 24px 28px 56px;
+  padding: clamp(16px, 4vw, 24px) clamp(12px, 3vw, 28px) clamp(28px, 5vw, 56px);
+  min-width: 0;
+  width: 100%;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+
+  color: $md-text;
+  font-size: clamp(15px, 2.8vw, 16px);
+  line-height: 1.5;
+  word-wrap: break-word;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans', Helvetica, Arial, sans-serif,
+    'Apple Color Emoji', 'Segoe UI Emoji';
+
+  :first-child {
+    margin-top: 0 !important;
+  }
+
+  :last-child {
+    margin-bottom: 0 !important;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    margin-top: 1.5rem;
+    margin-bottom: 1rem;
+    font-weight: 600;
+    line-height: 1.25;
+  }
+
+  h1 {
+    margin-top: 0;
+    padding-bottom: 0.15em;
+    font-size: 2em;
+    border-bottom: none;
+  }
+
+  h2 {
+    padding-bottom: 0.15em;
+    font-size: 1.5em;
+    border-bottom: none;
+  }
+
+  /* 文内分隔线：不显式画线（避免与标题下划线叠出「多道横线」观感） */
+  hr {
+    display: none;
+  }
+
+  h3 {
+    font-size: 1.25em;
+  }
+
+  h4 {
+    font-size: 1em;
+  }
+
+  h5 {
+    font-size: 0.875em;
+  }
+
+  h6 {
+    font-size: 0.85em;
+    color: $md-muted;
+  }
+
+  p {
+    margin-top: 0;
+    margin-bottom: 1rem;
+  }
+
+  a {
+    color: var(--blog-accent, #{$md-link});
+    text-decoration: none;
+    background-color: transparent;
+
+    &:hover {
+      text-decoration: underline;
+      text-underline-offset: 0.2rem;
+    }
+  }
+
+  a:not([href]) {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  strong,
+  b {
+    font-weight: 600;
+  }
+
+  em,
+  dfn {
+    font-style: italic;
+  }
+
+  mark {
+    background-color: #fff8c5;
+    color: $md-text;
+  }
+
+  small {
+    font-size: 90%;
+  }
+
+  sub,
+  sup {
+    font-size: 75%;
+    line-height: 0;
+    position: relative;
+    vertical-align: baseline;
+  }
+
+  sub {
+    bottom: -0.25em;
+  }
+
+  sup {
+    top: -0.5em;
+  }
+
+  img {
+    max-width: 100%;
+    height: auto;
+    border-style: none;
+    box-sizing: content-box;
+  }
+
+  blockquote {
+    margin: 0 0 1rem;
+    padding: 0 1em;
+    color: $md-muted;
+    border-left: 0.25em solid $md-border;
+
+    > :first-child {
+      margin-top: 0;
+    }
+
+    > :last-child {
+      margin-bottom: 0;
+    }
+  }
+
+  ul,
+  ol {
+    margin-top: 0;
+    margin-bottom: 1rem;
+    padding-left: 2em;
+  }
+
+  ul ul,
+  ul ol,
+  ol ol,
+  ol ul {
+    margin-top: 0;
+    margin-bottom: 0;
+  }
+
+  li + li {
+    margin-top: 0.25em;
+  }
+
+  li > p {
+    margin-top: 1rem;
+  }
+
+  dl {
+    margin: 0 0 1rem;
+    padding: 0;
+  }
+
+  dt {
+    padding: 0;
+    margin-top: 1rem;
+    font-size: 1em;
+    font-style: italic;
+    font-weight: 600;
+  }
+
+  dd {
+    margin: 0 0 1rem;
+    padding: 0 1rem;
+  }
+
+  code,
+  kbd,
+  samp {
+    font-family: $md-mono;
+    font-size: 12px;
+  }
+
+  /* 行内 code（不在 pre 内） */
+  :not(pre) > code {
+    padding: 0.2em 0.4em;
+    margin: 0;
+    font-size: 85%;
+    white-space: break-spaces;
+    background-color: $md-inline-code-bg;
+    border-radius: 6px;
+  }
+
+  pre {
+    margin-top: 0;
+    margin-bottom: 1rem;
+    padding: 1rem;
+    overflow: auto;
+    font-family: $md-mono;
+    font-size: 85%;
+    line-height: 1.45;
+    color: $md-text;
+    background-color: $md-pre-bg;
+    border-radius: 6px;
+    word-wrap: normal;
+    box-sizing: border-box;
+    min-width: 0;
+    max-width: 100%;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  pre code,
+  pre kbd,
+  pre samp {
+    display: inline;
+    padding: 0;
+    margin: 0;
+    font-size: 100%;
+    line-height: inherit;
+    word-wrap: normal;
+    word-break: normal;
+    white-space: pre;
+    background-color: transparent;
+    border: 0;
+    border-radius: 0;
+  }
+
+  table {
+    border-spacing: 0;
+    border-collapse: collapse;
+    display: block;
+    width: max-content;
+    max-width: 100%;
+    margin: 0 0 1rem;
+    overflow: auto;
+    font-variant: tabular-nums;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  th,
+  td {
+    padding: 6px 13px;
+    border: 1px solid $md-border;
+  }
+
+  th {
+    font-weight: 600;
+  }
+
+  tr {
+    background-color: #fff;
+    border-top: 1px solid $md-border-soft;
+  }
+
+  tr:nth-child(2n) {
+    background-color: $md-table-stripe;
+  }
+
+  table img {
+    background-color: transparent;
+  }
+
+  details {
+    margin-bottom: 1rem;
+  }
+
+  summary {
+    cursor: pointer;
+    display: list-item;
+  }
+
+  center {
+    display: block;
+    text-align: center;
+  }
 }
 
+@media (max-width: 480px) {
+  .mdx {
+    padding-left: max(12px, env(safe-area-inset-left));
+    padding-right: max(12px, env(safe-area-inset-right));
+  }
+}

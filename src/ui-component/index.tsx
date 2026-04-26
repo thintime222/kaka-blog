@@ -22,9 +22,7 @@ export function MdCard(props: PropsWithChildren) {
     <div
       style={{
         padding: 12,
-        borderRadius: 12,
-        border: '1px solid rgba(255,255,255,0.12)',
-        background: 'rgba(255,255,255,0.04)',
+        borderRadius: 6,
         margin: '12px 0',
       }}
     >

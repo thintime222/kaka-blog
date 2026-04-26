@@ -1,17 +1,52 @@
 import { lazy } from 'react'
-import { useRoutes } from 'react-router-dom'
+import type { ComponentType } from 'react'
+import { Navigate, useRoutes } from 'react-router-dom'
 import type { RouteObject } from 'react-router-dom'
 
-import { genMdxRouters, mdxInitError } from '@/service/mdx-service'
+import { DEFAULT_ENTRY_SLUG } from '@/constants/page-convention'
+import {
+  compareArticleDateDesc,
+  genMdxRouters,
+  mdxInitError,
+  type MdxRoute,
+} from '@/service/mdx-service'
 import Layout from '@/ui/layout/Layout'
 import MdxLayout from '@/ui/layout/MdxLayout'
 
 const NotFound = lazy(() => import('@/ui/status/NotFound'))
 const MdxError = lazy(() => import('@/ui/status/MdxError'))
-const About = lazy(() => import('@/page/about/index.mdx'))
-const Log = lazy(() => import('@/page/log/index.mdx'))
-const Resume = lazy(() => import('@/page/resume/index.mdx'))
-const MyResume = lazy(() => import('@/page/resume/resume.mdx'))
+
+
+function categoryChildRoutes(sorted: MdxRoute[]): RouteObject[] {
+  const indexMdx = sorted.find((m) => m.isCategoryIndex) ?? sorted[0]
+  const rest = sorted.filter((m) => m !== indexMdx).sort(compareArticleDateDesc)
+
+  const IndexEl = lazy(indexMdx.element as () => Promise<{ default: ComponentType }>)
+  const children: RouteObject[] = [
+    {
+      index: true,
+      id: `cat-index:${indexMdx.key}`,
+      element: (
+        <MdxLayout>
+          <IndexEl />
+        </MdxLayout>
+      ),
+    },
+    ...rest.map((mdx) => {
+      const Element = lazy(mdx.element as () => Promise<{ default: ComponentType }>)
+      return {
+        path: mdx.date,
+        id: mdx.key,
+        element: (
+          <MdxLayout>
+            <Element />
+          </MdxLayout>
+        ),
+      }
+    }),
+  ]
+  return children
+}
 
 const mdxRouters = (): RouteObject[] => {
   const mdxFiles = genMdxRouters()
@@ -23,33 +58,11 @@ const mdxRouters = (): RouteObject[] => {
   }
 
   return Array.from(byGroup.entries()).map(([key, list]) => {
+    const sorted = list.slice().sort(compareArticleDateDesc)
     return {
       path: `/${key}`,
       element: <Layout type={key} />,
-      children: list.map((mdx, idx) => {
-        const Element = lazy(mdx.element as any)
-        if (idx === 0) {
-          return {
-            ...mdx,
-            index: true,
-            path: '',
-            element: (
-              <MdxLayout>
-                <Element />
-              </MdxLayout>
-            ),
-          }
-        }
-        return {
-          ...mdx,
-          path: mdx.date,
-          element: (
-            <MdxLayout>
-              <Element />
-            </MdxLayout>
-          ),
-        }
-      }),
+      children: categoryChildRoutes(sorted),
     }
   })
 }
@@ -57,51 +70,7 @@ const mdxRouters = (): RouteObject[] => {
 const routeConfig: RouteObject[] = [
   {
     path: '/',
-    element: <Layout />,
-    children: [
-      {
-        index: true,
-        element: <div style={{ padding: 24 }}>Home</div>,
-      },
-    ],
-  },
-  {
-    path: '/md',
-    element: <Layout />,
-    children: [
-      {
-        path: 'about',
-        element: (
-          <MdxLayout>
-            <About />
-          </MdxLayout>
-        ),
-      },
-      {
-        path: 'log',
-        element: (
-          <MdxLayout>
-            <Log />
-          </MdxLayout>
-        ),
-      },
-      {
-        path: 'resume',
-        element: (
-          <MdxLayout>
-            <Resume />
-          </MdxLayout>
-        ),
-      },
-      {
-        path: 'myresume',
-        element: (
-          <MdxLayout>
-            <MyResume />
-          </MdxLayout>
-        ),
-      },
-    ],
+    element: <Navigate to={`/${DEFAULT_ENTRY_SLUG}`} replace />,
   },
   ...mdxRouters(),
   {
@@ -117,4 +86,3 @@ const routeConfig: RouteObject[] = [
 export default function Router() {
   return useRoutes(routeConfig)
 }
-

@@ -5,7 +5,15 @@ export default function MdxError(props: { message?: string }) {
       <p style={{ opacity: 0.8 }}>
         该分类或文章引用了当前项目不存在的依赖/文件（例如原 yaolx 项目里的 util、asset、第三方库等）。
       </p>
-      <pre style={{ whiteSpace: 'pre-wrap' }}>
+      <pre
+        style={{
+          whiteSpace: 'pre-wrap',
+          wordBreak: 'break-word',
+          overflow: 'auto',
+          maxWidth: '100%',
+          boxSizing: 'border-box',
+        }}
+      >
         <code>{props.message || 'Unknown error'}</code>
       </pre>
       <p style={{ opacity: 0.8 }}>
