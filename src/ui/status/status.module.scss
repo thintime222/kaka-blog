@@ -1,0 +1,29 @@
+.statusRoot {
+  padding: 24px;
+}
+
+.statusTitle {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.statusText {
+  margin: 0 0 1em;
+  line-height: 1.5;
+  opacity: 0.8;
+}
+
+.statusPre {
+  box-sizing: border-box;
+  margin: 0 0 1em;
+  max-width: 100%;
+  overflow: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.statusPreCode {
+  font-family: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace;
+  font-size: 13px;
+}

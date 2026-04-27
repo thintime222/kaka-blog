@@ -1,4 +1,4 @@
-import { Suspense, useEffect, useMemo, useRef, useState } from 'react'
+import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { LOG_NAV_SLUG } from '@/constants/page-convention'
 import {
@@ -31,6 +31,8 @@ export default function Layout(props: { type?: string }) {
   const [searchQ, setSearchQ] = useState('')
   const [searchOpen, setSearchOpen] = useState(false)
   const searchWrapRef = useRef<HTMLDivElement>(null)
+  const searchQRef = useRef(searchQ)
+  searchQRef.current = searchQ
 
   const searchHits = useMemo(() => searchArticles(searchQ), [searchQ])
 
@@ -57,34 +59,72 @@ export default function Layout(props: { type?: string }) {
     }
   }, [categoryNewest?.isCategoryIndex, categoryNewestDate, currentType, navigate, pathname])
 
-  const goArticle = (r: MdxRoute) => {
-    navigate(r.path)
+  const navigateToPath = useCallback((path: string) => {
+    navigate(path)
     setSearchOpen(false)
     setSearchQ('')
-  }
+  }, [navigate])
 
-  const onSearchKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Escape') {
-      setSearchOpen(false)
-      ;(e.target as HTMLInputElement).blur()
-    }
-    if (e.key === 'Enter' && searchHits[0]) {
-      e.preventDefault()
-      goArticle(searchHits[0])
-    }
-  }
+  const goArticle = useCallback((r: MdxRoute) => navigateToPath(r.path), [navigateToPath])
+
+  const onSearchHitClick = useCallback(
+    (e: React.MouseEvent<HTMLButtonElement>) => {
+      const path = e.currentTarget.dataset.path
+      if (path) navigateToPath(path)
+    },
+    [navigateToPath],
+  )
+
+  const onSideItemClick = useCallback(
+    (e: React.MouseEvent<HTMLButtonElement>) => {
+      const path = e.currentTarget.dataset.path
+      if (path) navigate(path)
+    },
+    [navigate],
+  )
+
+  const onCategoryNav = useCallback(
+    (e: React.MouseEvent<HTMLButtonElement>) => {
+      const slug = e.currentTarget.dataset.slug
+      if (slug) navigate(`/${slug}`)
+    },
+    [navigate],
+  )
+
+  const openGithub = useCallback(() => {
+    window.open('https://github.com/', '_blank', 'noopener,noreferrer')
+  }, [])
+
+  const onSearchChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQ(e.target.value)
+    setSearchOpen(true)
+  }, [])
+
+  const onSearchFocus = useCallback(() => {
+    if (searchQRef.current.trim()) setSearchOpen(true)
+  }, [])
+
+  const onSearchKeyDown = useCallback(
+    (e: React.KeyboardEvent<HTMLInputElement>) => {
+      if (e.key === 'Escape') {
+        setSearchOpen(false)
+        ;(e.target as HTMLInputElement).blur()
+      }
+      if (e.key === 'Enter' && searchHits[0]) {
+        e.preventDefault()
+        goArticle(searchHits[0])
+      }
+    },
+    [goArticle, searchHits],
+  )
 
   return (
     <div className={styles.shell}>
       <header className={styles.topbar}>
         <div className={styles.topbarInner}>
           <div className={styles.brand}>
-            <div className={styles.avatarBlock}>
-              <img className={styles.avatar} src={avatarSvg} alt="" width={30} height={30} />
-            </div>
-            <div>
-              个人技术博客
-            </div>
+            <img className={styles.avatar} src={avatarSvg} alt="" width={30} height={30} />
+            <span className={styles.brandLabel}>个人技术博客</span>
           </div>
 
           <div className={styles.searchWrap} ref={searchWrapRef}>
@@ -96,13 +136,8 @@ export default function Layout(props: { type?: string }) {
               autoComplete="off"
               aria-expanded={searchOpen && Boolean(searchQ.trim())}
               aria-controls="layout-search-results"
-              onChange={(e) => {
-                setSearchQ(e.target.value)
-                setSearchOpen(true)
-              }}
-              onFocus={() => {
-                if (searchQ.trim()) setSearchOpen(true)
-              }}
+              onChange={onSearchChange}
+              onFocus={onSearchFocus}
               onKeyDown={onSearchKeyDown}
             />
             {searchOpen && searchQ.trim() ? (
@@ -116,7 +151,8 @@ export default function Layout(props: { type?: string }) {
                         type="button"
                         role="option"
                         className={styles.searchHit}
-                        onClick={() => goArticle(r)}
+                        data-path={r.path}
+                        onClick={onSearchHitClick}
                       >
                         <span className={styles.searchHitTitle}>{r.name}</span>
                         <span className={styles.searchHitMeta}>
@@ -137,24 +173,22 @@ export default function Layout(props: { type?: string }) {
                   key={m.key}
                   type="button"
                   className={`${styles.navLink} ${isActiveTop(m.key) ? styles.navLinkActive : ''}`}
-                  onClick={() => navigate(`/${m.key}`)}
+                  data-slug={m.key}
+                  onClick={onCategoryNav}
                 >
                   {m.title}
                 </button>
               ))}
             </div>
             <div className={styles.navUtil}>
-              <button
-                type="button"
-                className={styles.navLink}
-                onClick={() => window.open('https://github.com/', '_blank')}
-              >
+              <button type="button" className={styles.navLink} onClick={openGithub}>
                 GitHub
               </button>
               <button
                 type="button"
                 className={`${styles.navLink} ${isActiveTop(LOG_NAV_SLUG) ? styles.navLinkActive : ''}`}
-                onClick={() => navigate(`/${LOG_NAV_SLUG}`)}
+                data-slug={LOG_NAV_SLUG}
+                onClick={onCategoryNav}
               >
                 更新日志
               </button>
@@ -177,11 +211,15 @@ export default function Layout(props: { type?: string }) {
                     ? pathname === `/${currentType}` || pathname === `/${currentType}/${item.date}`
                     : pathname === target
 
+                  const path = isIndex ? `/${currentType}` : target
+
                   return (
                     <button
                       key={item.key}
+                      type="button"
                       className={`${styles.sideItem} ${isActive ? styles.sideItemActive : ''}`}
-                      onClick={() => navigate(isIndex ? `/${currentType}` : target)}
+                      data-path={path}
+                      onClick={onSideItemClick}
                       title={item.name}
                     >
                       {item.name}

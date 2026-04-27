@@ -1,4 +1,4 @@
-/* 正文区排版：对齐 github-markdown-css light 观感，不依赖该包 */
+/* 正文 class 排版；无 SCSS 嵌套（&） */
 
 $md-text: #1f2328;
 $md-muted: #59636e;
@@ -18,287 +18,308 @@ $md-mono: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation 
   width: 100%;
   overflow-wrap: anywhere;
   word-break: break-word;
-
   color: $md-text;
   font-size: clamp(15px, 2.8vw, 16px);
   line-height: 1.5;
   word-wrap: break-word;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans', Helvetica, Arial, sans-serif,
     'Apple Color Emoji', 'Segoe UI Emoji';
+}
 
-  :first-child {
-    margin-top: 0 !important;
-  }
+.mdx > :first-child {
+  margin-top: 0 !important;
+}
 
-  :last-child {
-    margin-bottom: 0 !important;
-  }
+.mdx > :last-child {
+  margin-bottom: 0 !important;
+}
 
-  h1,
-  h2,
-  h3,
-  h4,
-  h5,
-  h6 {
-    margin-top: 1.5rem;
-    margin-bottom: 1rem;
-    font-weight: 600;
-    line-height: 1.25;
-  }
+.mdxH1 {
+  margin-top: 0;
+  margin-bottom: 1rem;
+  font-weight: 600;
+  line-height: 1.25;
+  padding-bottom: 0.15em;
+  font-size: 2em;
+  border-bottom: none;
+}
 
-  h1 {
-    margin-top: 0;
-    padding-bottom: 0.15em;
-    font-size: 2em;
-    border-bottom: none;
-  }
+.mdxH2 {
+  margin-top: 1.5rem;
+  margin-bottom: 1rem;
+  font-weight: 600;
+  line-height: 1.25;
+  padding-bottom: 0.15em;
+  font-size: 1.5em;
+  border-bottom: none;
+}
 
-  h2 {
-    padding-bottom: 0.15em;
-    font-size: 1.5em;
-    border-bottom: none;
-  }
+.mdxH3 {
+  margin-top: 1.5rem;
+  margin-bottom: 1rem;
+  font-weight: 600;
+  line-height: 1.25;
+  font-size: 1.25em;
+}
 
-  /* 文内分隔线：不显式画线（避免与标题下划线叠出「多道横线」观感） */
-  hr {
-    display: none;
-  }
+.mdxH4 {
+  margin-top: 1.5rem;
+  margin-bottom: 1rem;
+  font-weight: 600;
+  line-height: 1.25;
+  font-size: 1em;
+}
 
-  h3 {
-    font-size: 1.25em;
-  }
+.mdxH5 {
+  margin-top: 1.5rem;
+  margin-bottom: 1rem;
+  font-weight: 600;
+  line-height: 1.25;
+  font-size: 0.875em;
+}
 
-  h4 {
-    font-size: 1em;
-  }
+.mdxH6 {
+  margin-top: 1.5rem;
+  margin-bottom: 1rem;
+  font-weight: 600;
+  line-height: 1.25;
+  font-size: 0.85em;
+  color: $md-muted;
+}
 
-  h5 {
-    font-size: 0.875em;
-  }
+.mdxHr {
+  display: none;
+}
 
-  h6 {
-    font-size: 0.85em;
-    color: $md-muted;
-  }
+.mdxP {
+  margin-top: 0;
+  margin-bottom: 1rem;
+}
 
-  p {
-    margin-top: 0;
-    margin-bottom: 1rem;
-  }
+.mdxA {
+  color: $md-link;
+  text-decoration: none;
+  background-color: transparent;
+}
 
-  a {
-    color: var(--blog-accent, #{$md-link});
-    text-decoration: none;
-    background-color: transparent;
+.mdxA:hover {
+  text-decoration: underline;
+  text-underline-offset: 0.2rem;
+}
 
-    &:hover {
-      text-decoration: underline;
-      text-underline-offset: 0.2rem;
-    }
-  }
+.mdxAPlain {
+  color: inherit;
+  text-decoration: none;
+}
 
-  a:not([href]) {
-    color: inherit;
-    text-decoration: none;
-  }
+.mdxStrong {
+  font-weight: 600;
+}
 
-  strong,
-  b {
-    font-weight: 600;
-  }
+.mdxEm {
+  font-style: italic;
+}
 
-  em,
-  dfn {
-    font-style: italic;
-  }
+.mdxMark {
+  background-color: #fff8c5;
+  color: $md-text;
+}
 
-  mark {
-    background-color: #fff8c5;
-    color: $md-text;
-  }
+.mdxSmall {
+  font-size: 90%;
+}
 
-  small {
-    font-size: 90%;
-  }
+.mdxSub {
+  font-size: 75%;
+  line-height: 0;
+  position: relative;
+  vertical-align: baseline;
+  bottom: -0.25em;
+}
 
-  sub,
-  sup {
-    font-size: 75%;
-    line-height: 0;
-    position: relative;
-    vertical-align: baseline;
-  }
+.mdxSup {
+  font-size: 75%;
+  line-height: 0;
+  position: relative;
+  vertical-align: baseline;
+  top: -0.5em;
+}
 
-  sub {
-    bottom: -0.25em;
-  }
+.mdxImg {
+  max-width: 100%;
+  height: auto;
+  border-style: none;
+  box-sizing: content-box;
+}
 
-  sup {
-    top: -0.5em;
-  }
+.mdxBlockquote {
+  margin: 0 0 1rem;
+  padding: 0 1em;
+  color: $md-muted;
+  border-left: 0.25em solid $md-border;
+}
 
-  img {
-    max-width: 100%;
-    height: auto;
-    border-style: none;
-    box-sizing: content-box;
-  }
+.mdxBlockquote > :first-child {
+  margin-top: 0;
+}
 
-  blockquote {
-    margin: 0 0 1rem;
-    padding: 0 1em;
-    color: $md-muted;
-    border-left: 0.25em solid $md-border;
+.mdxBlockquote > :last-child {
+  margin-bottom: 0;
+}
 
-    > :first-child {
-      margin-top: 0;
-    }
+.mdxUl,
+.mdxOl {
+  margin-top: 0;
+  margin-bottom: 1rem;
+  padding-left: 2em;
+}
 
-    > :last-child {
-      margin-bottom: 0;
-    }
-  }
+.mdxUl .mdxUl,
+.mdxUl .mdxOl,
+.mdxOl .mdxOl,
+.mdxOl .mdxUl {
+  margin-top: 0;
+  margin-bottom: 0;
+}
 
-  ul,
-  ol {
-    margin-top: 0;
-    margin-bottom: 1rem;
-    padding-left: 2em;
-  }
+.mdxLi {
+  display: list-item;
+}
 
-  ul ul,
-  ul ol,
-  ol ol,
-  ol ul {
-    margin-top: 0;
-    margin-bottom: 0;
-  }
+.mdxLi + .mdxLi {
+  margin-top: 0.25em;
+}
 
-  li + li {
-    margin-top: 0.25em;
-  }
+.mdxLi > .mdxP {
+  margin-top: 1rem;
+}
 
-  li > p {
-    margin-top: 1rem;
-  }
+.mdxDl {
+  margin: 0 0 1rem;
+  padding: 0;
+}
 
-  dl {
-    margin: 0 0 1rem;
-    padding: 0;
-  }
+.mdxDt {
+  padding: 0;
+  margin-top: 1rem;
+  font-size: 1em;
+  font-style: italic;
+  font-weight: 600;
+}
 
-  dt {
-    padding: 0;
-    margin-top: 1rem;
-    font-size: 1em;
-    font-style: italic;
-    font-weight: 600;
-  }
+.mdxDd {
+  margin: 0 0 1rem;
+  padding: 0 1rem;
+}
 
-  dd {
-    margin: 0 0 1rem;
-    padding: 0 1rem;
-  }
+.mdxKbd {
+  font-family: $md-mono;
+  font-size: 12px;
+}
 
-  code,
-  kbd,
-  samp {
-    font-family: $md-mono;
-    font-size: 12px;
-  }
+.mdxSamp {
+  font-family: $md-mono;
+  font-size: 12px;
+}
 
-  /* 行内 code（不在 pre 内） */
-  :not(pre) > code {
-    padding: 0.2em 0.4em;
-    margin: 0;
-    font-size: 85%;
-    white-space: break-spaces;
-    background-color: $md-inline-code-bg;
-    border-radius: 6px;
-  }
+.mdxCodeInline {
+  padding: 0.2em 0.4em;
+  margin: 0;
+  font-size: 85%;
+  white-space: break-spaces;
+  background-color: $md-inline-code-bg;
+  border-radius: 6px;
+  font-family: $md-mono;
+}
 
-  pre {
-    margin-top: 0;
-    margin-bottom: 1rem;
-    padding: 1rem;
-    overflow: auto;
-    font-family: $md-mono;
-    font-size: 85%;
-    line-height: 1.45;
-    color: $md-text;
-    background-color: $md-pre-bg;
-    border-radius: 6px;
-    word-wrap: normal;
-    box-sizing: border-box;
-    min-width: 0;
-    max-width: 100%;
-    -webkit-overflow-scrolling: touch;
-  }
+.mdxPre {
+  margin-top: 0;
+  margin-bottom: 1rem;
+  padding: 1rem;
+  overflow: auto;
+  font-family: $md-mono;
+  font-size: 85%;
+  line-height: 1.45;
+  color: $md-text;
+  background-color: $md-pre-bg;
+  border-radius: 6px;
+  word-wrap: normal;
+  box-sizing: border-box;
+  min-width: 0;
+  max-width: 100%;
+  -webkit-overflow-scrolling: touch;
+}
 
-  pre code,
-  pre kbd,
-  pre samp {
-    display: inline;
-    padding: 0;
-    margin: 0;
-    font-size: 100%;
-    line-height: inherit;
-    word-wrap: normal;
-    word-break: normal;
-    white-space: pre;
-    background-color: transparent;
-    border: 0;
-    border-radius: 0;
-  }
+.mdxPreCode {
+  display: inline;
+  padding: 0;
+  margin: 0;
+  font-size: 100%;
+  line-height: inherit;
+  word-wrap: normal;
+  word-break: normal;
+  white-space: pre;
+  background-color: transparent;
+  border: 0;
+  border-radius: 0;
+  font-family: inherit;
+}
 
-  table {
-    border-spacing: 0;
-    border-collapse: collapse;
-    display: block;
-    width: max-content;
-    max-width: 100%;
-    margin: 0 0 1rem;
-    overflow: auto;
-    font-variant: tabular-nums;
-    -webkit-overflow-scrolling: touch;
-  }
+.mdxTable {
+  border-spacing: 0;
+  border-collapse: collapse;
+  display: block;
+  width: max-content;
+  max-width: 100%;
+  margin: 0 0 1rem;
+  overflow: auto;
+  font-variant: tabular-nums;
+  -webkit-overflow-scrolling: touch;
+}
 
-  th,
-  td {
-    padding: 6px 13px;
-    border: 1px solid $md-border;
-  }
+.mdxTh {
+  padding: 6px 13px;
+  border: 1px solid $md-border;
+  font-weight: 600;
+}
 
-  th {
-    font-weight: 600;
-  }
+.mdxTd {
+  padding: 6px 13px;
+  border: 1px solid $md-border;
+}
 
-  tr {
-    background-color: #fff;
-    border-top: 1px solid $md-border-soft;
-  }
+.mdxTr {
+  background-color: #fff;
+  border-top: 1px solid $md-border-soft;
+}
 
-  tr:nth-child(2n) {
-    background-color: $md-table-stripe;
-  }
+.mdxTbody .mdxTr:nth-child(2n),
+.mdxTable > .mdxTr:nth-child(2n) {
+  background-color: $md-table-stripe;
+}
 
-  table img {
-    background-color: transparent;
-  }
+.mdxTable .mdxImg {
+  background-color: transparent;
+}
 
-  details {
-    margin-bottom: 1rem;
-  }
+.mdxDetails {
+  margin-bottom: 1rem;
+}
 
-  summary {
-    cursor: pointer;
-    display: list-item;
-  }
+.mdxSummary {
+  cursor: pointer;
+  display: list-item;
+}
 
-  center {
-    display: block;
-    text-align: center;
-  }
+.mdxCenter {
+  display: block;
+  text-align: center;
+}
+
+.mdxCard {
+  padding: 12px;
+  border-radius: 6px;
+  margin: 12px 0;
 }
 
 @media (max-width: 480px) {

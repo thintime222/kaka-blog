@@ -28,9 +28,6 @@ export const TOP_NAV_SLUG_ORDER = ['about'] as const
 /** 更新日志走 MDX 分类目录 `log`，但主导航入口在 GitHub 之后 */
 export const LOG_NAV_SLUG = 'log'
 
-/** 全站主题色在浏览器中的覆盖项（默认色见 `src/content/blog-theme.mdx` 的 `blogAccentDefault`） */
-export const BLOG_ACCENT_STORAGE_KEY = 'kaka-blog-accent'
-
 /** 无独立首页时，根路径 `/` 重定向到的分类 slug（须与 `src/page/<slug>/` 一致） */
 export const DEFAULT_ENTRY_SLUG = 'about' as const
 

@@ -1,32 +1,4 @@
-/* 侧栏与正文共用：细轨道、同宽同色，避免「一粗一细」 */
-@mixin scrollbar-panel {
-  scrollbar-width: thin;
-  scrollbar-color: rgba(148, 163, 184, 0.65) transparent;
-
-  &::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
-  }
-
-  &::-webkit-scrollbar-track {
-    background: transparent;
-  }
-
-  &::-webkit-scrollbar-thumb {
-    background-color: rgba(148, 163, 184, 0.5);
-    border-radius: 999px;
-    border: 2px solid transparent;
-    background-clip: padding-box;
-  }
-
-  &::-webkit-scrollbar-thumb:hover {
-    background-color: rgba(100, 116, 139, 0.65);
-  }
-
-  &::-webkit-scrollbar-corner {
-    background: transparent;
-  }
-}
+/* 滚动条样式由 `src/styles/global.scss` 统一提供；本文件无 SCSS 嵌套（&） */
 
 .shell {
   overflow: hidden;
@@ -38,15 +10,10 @@
 .topbar {
   position: sticky;
   top: 0;
-  /* 高于 .content，避免搜索下拉被主栏盖住导致「点了没反应」 */
   z-index: 50;
-  isolation: isolate;
-  background: rgba(255, 255, 255, 0.92);
+  background: #fff;
   border-bottom: 1px solid #e8eaed;
   padding-top: env(safe-area-inset-top);
-  box-shadow: 0 1px 0 rgba(15, 23, 42, 0.04), 0 8px 24px -12px rgba(15, 23, 42, 0.08);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
 }
 
 .topbarInner {
@@ -72,141 +39,27 @@
   min-width: 0;
 }
 
-.avatarBlock {
-  position: relative;
-  flex-shrink: 0;
-  isolation: isolate;
-
-  &:hover .avatar,
-  &:focus-within .avatar {
-    box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.95), 0 0 0 4px var(--blog-accent, #2563eb);
-    cursor: pointer;
-  }
-}
-
 .avatar {
+  flex-shrink: 0;
   width: 30px;
   height: 30px;
   border-radius: 999px;
   border: 1px solid rgba(15, 23, 42, 0.08);
-  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.06);
   object-fit: cover;
   display: block;
-  transition: box-shadow 0.15s ease;
 }
 
-.accentPanel {
-  position: absolute;
-  top: 100%;
-  left: auto;
-  right: 0;
-  z-index: 70;
-  padding-top: 8px;
-  margin: 0;
-  background: transparent;
-  border: none;
-  box-shadow: none;
-  opacity: 0;
-  visibility: hidden;
-  pointer-events: none;
-  transform: translateY(-4px);
-  transition:
-    opacity 0.15s ease,
-    visibility 0.15s ease,
-    transform 0.15s ease;
+.brand:hover .avatar,
+.brand:focus-within .avatar {
+  outline: 2px solid #2563eb;
+  outline-offset: 2px;
 }
 
-.accentPanelCard {
-  min-width: 196px;
-  padding: 10px 12px;
-  background: #fff;
-  border: 1px solid #e5e7eb;
-  border-radius: 10px;
-  box-shadow: 0 10px 40px rgba(15, 23, 42, 0.14);
-}
-
-.avatarBlock:hover .accentPanel,
-.avatarBlock:focus-within .accentPanel {
-  opacity: 1;
-  visibility: visible;
-  pointer-events: auto;
-  transform: translateY(0);
-}
-
-.accentPanelTitle {
-  font-size: 12px;
-  font-weight: 600;
-  color: #64748b;
-  margin-bottom: 8px;
-}
-
-.accentRow {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.accentInput {
-  width: 44px;
-  height: 36px;
-  padding: 0;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
-  cursor: pointer;
-  background: #fff;
-}
-
-.accentReset {
-  margin: 0;
-  padding: 6px 10px;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
-  font-size: 12px;
-  font-weight: 500;
-  color: #475569;
-  background: #f8fafc;
-  cursor: pointer;
-
-  &:hover {
-    background: #f1f5f9;
-    border-color: #cbd5e1;
-  }
-}
-
-.brandTitle {
-  position: relative;
-  z-index: 2;
-  margin: 0;
-  padding: 0;
-  border: 0;
-  background: none;
-  font: inherit;
+.brandLabel {
   font-weight: 600;
   font-size: clamp(14px, 2.2vw, 16px);
   letter-spacing: -0.02em;
   color: #475569;
-  cursor: pointer;
-  transition: color 0.15s ease;
-
-  &:hover {
-    color: var(--blog-accent, #2563eb);
-  }
-
-  &:active {
-    opacity: 0.88;
-  }
-}
-
-.brandAtHome {
-  color: var(--blog-accent, #2563eb);
-
-  &:hover {
-    filter: brightness(0.92);
-  }
-
-  &:active {
-    filter: brightness(0.85);
-  }
 }
 
 .searchWrap {
@@ -224,34 +77,28 @@
   min-height: 44px;
   border: 1px solid #e2e8f0;
   border-radius: 10px;
+  font: inherit;
   font-size: 16px;
   background: #f8fafc;
   color: #0f172a;
   outline: none;
-  transition: border-color 0.15s, box-shadow 0.15s, background 0.15s;
-
-  &:hover {
-    border-color: #cbd5e1;
-    background: #f1f5f9;
-  }
-
-  &:focus {
-    background: #fff;
-    border-color: var(--blog-accent, #3b82f6);
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.18);
-  }
-
-  &::placeholder {
-    color: #94a3b8;
-  }
+  transition: border-color 0.15s, background 0.15s;
 }
 
-@media (min-width: 768px) {
-  .search {
-    min-height: 0;
-    padding: 9px 14px;
-    font-size: 14px;
-  }
+.search:hover {
+  border-color: #cbd5e1;
+  background: #f1f5f9;
+}
+
+.search:focus {
+  background: #fff;
+  border-color: #3b82f6;
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
+
+.search::placeholder {
+  color: #94a3b8;
 }
 
 .searchDropdown {
@@ -265,7 +112,6 @@
   background: #fff;
   border: 1px solid #e5e7eb;
   border-radius: 8px;
-  box-shadow: 0 10px 40px rgba(15, 23, 42, 0.12);
   max-height: min(360px, 50dvh);
   overflow-y: auto;
   z-index: 60;
@@ -285,21 +131,14 @@
   border: 0;
   background: transparent;
   cursor: pointer;
+  font: inherit;
   font-size: 14px;
   line-height: 1.4;
   color: #111827;
-
-  &:hover {
-    background: #f3f4f6;
-  }
 }
 
-@media (min-width: 768px) {
-  .searchHit {
-    min-height: 0;
-    padding: 10px 14px;
-    font-size: 13px;
-  }
+.searchHit:hover {
+  background: #f3f4f6;
 }
 
 .searchHitTitle {
@@ -315,7 +154,6 @@
 }
 
 .nav {
-  /* 勿 flex-shrink：否则窄屏时整段主导航被压扁，激活态看起来像「内缩」 */
   flex: 0 0 auto;
   display: flex;
   align-items: center;
@@ -351,27 +189,19 @@
   border: 1px solid transparent;
   background: transparent;
   cursor: pointer;
+  font: inherit;
   padding: 8px 12px;
   min-height: 40px;
   font-size: 13px;
   font-weight: 500;
-
   border-radius: 8px;
   white-space: nowrap;
   flex-shrink: 0;
   transition: background 0.12s ease, color 0.12s ease, border-color 0.12s ease;
-
-  &:hover {
-    background: #f1f5f9;
-  }
 }
 
-@media (min-width: 768px) {
-  .navLink {
-    min-height: 0;
-    padding: 7px 11px;
-    font-size: 13px;
-  }
+.navLink:hover {
+  background: #f1f5f9;
 }
 
 .navLinkActive {
@@ -379,11 +209,11 @@
   color: #4471d3;
   font-weight: 600;
   border-color: transparent;
+}
 
-  &:hover {
-    background: #f1f5f9;
-    color: #4471d3;
-  }
+.navLinkActive:hover {
+  background: #f1f5f9;
+  color: #4471d3;
 }
 
 .content {
@@ -420,25 +250,6 @@
   overflow: hidden;
 }
 
-@media (min-width: 769px) {
-  .sidebar {
-    padding-bottom: max(18px, env(safe-area-inset-bottom));
-  }
-
-  .sideTitle {
-    flex-shrink: 0;
-  }
-
-  .sideList {
-    flex: 1 1 auto;
-    min-height: 0;
-    overflow-x: hidden;
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
-    @include scrollbar-panel;
-  }
-}
-
 .sideItem {
   width: 100%;
   text-align: left;
@@ -447,19 +258,13 @@
   border: 0;
   background: #fff;
   cursor: pointer;
+  font: inherit;
   font-size: 13px;
   border-bottom: 1px solid #f3f4f6;
-
-  &:hover {
-    background: #f9fafb;
-  }
 }
 
-@media (min-width: 768px) {
-  .sideItem {
-    min-height: 0;
-    padding: 10px 12px;
-  }
+.sideItem:hover {
+  background: #f9fafb;
 }
 
 .sideItemActive {
@@ -477,7 +282,6 @@
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
   padding: 18px 0 max(40px, env(safe-area-inset-bottom));
-  @include scrollbar-panel;
 }
 
 .mainOutletFallback {
@@ -486,6 +290,49 @@
   padding: 24px max(14px, env(safe-area-inset-right)) 24px max(14px, env(safe-area-inset-left));
   color: #94a3b8;
   font-size: 14px;
+}
+
+@media (min-width: 768px) {
+  .search {
+    min-height: 0;
+    padding: 9px 14px;
+    font-size: 14px;
+  }
+
+  .searchHit {
+    min-height: 0;
+    padding: 10px 14px;
+    font-size: 13px;
+  }
+
+  .navLink {
+    min-height: 0;
+    padding: 7px 11px;
+    font-size: 13px;
+  }
+
+  .sideItem {
+    min-height: 0;
+    padding: 10px 12px;
+  }
+}
+
+@media (min-width: 769px) {
+  .sidebar {
+    padding-bottom: max(18px, env(safe-area-inset-bottom));
+  }
+
+  .sideTitle {
+    flex-shrink: 0;
+  }
+
+  .sideList {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-x: hidden;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
 }
 
 @media (max-width: 1024px) {
@@ -552,7 +399,6 @@
     border: none;
     border-radius: 0;
     background: transparent;
-    @include scrollbar-panel;
   }
 
   .sideItem {
@@ -566,8 +412,7 @@
   }
 
   .sideItemActive {
-    box-shadow: none;
-    border-color: var(--blog-accent, #93c5fd);
+    border-color: #93c5fd;
     background: #e8ecf0;
     color: #0f172a;
   }
@@ -588,4 +433,3 @@
     max-width: 100%;
   }
 }
-
